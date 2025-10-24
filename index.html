@@ -2,192 +2,228 @@
 <html lang="vi">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Đọc .docx có màu & tìm kiếm</title>
-    <style>
-        body {
-            font-family: system-ui, Segoe UI, Roboto, Arial;
-            max-width: 900px;
-            margin: 28px auto;
-            padding: 12px;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>Đọc .docx có màu & tìm kiếm (PC & Mobile)</title>
 
-        .controls {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
+  <style>
+    body {
+      font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0 auto;
+      max-width: 900px;
+      padding: 12px;
+      background: #fafafa;
+    }
 
-        input[type=text] {
-            flex: 1;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
+    h2 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
 
-        button {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid #aaa;
-            background: #f5f5f5;
-            cursor: pointer;
-        }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
 
-        #viewer {
-            border: 1px solid #ddd;
-            padding: 16px;
-            border-radius: 8px;
-            height: 65vh;
-            overflow: auto;
-            background: #fff;
-        }
+    input[type="file"],
+    input[type="text"],
+    button {
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+    }
 
-        mark {
-            background: orange;
-            color: #000;
-            padding: 0 2px;
-            border-radius: 3px;
-        }
+    input[type="text"] {
+      flex: 1;
+      min-width: 160px;
+    }
 
-        .hit {
-            background: gold;
-            font-weight: bold;
-        }
+    button {
+      background: #f0f0f0;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-        #status {
-            font-size: 14px;
-            margin-bottom: 12px;
-            color: #333;
-        }
-    </style>
+    button:hover {
+      background: #e0e0e0;
+    }
+
+    #viewer {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+      height: 65vh;
+      overflow: auto;
+    }
+
+    mark {
+      background: orange;
+      color: #000;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .hit {
+      background: gold;
+      font-weight: bold;
+    }
+
+    #status {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    /* 🔍 Responsive cho màn hình nhỏ */
+    @media (max-width: 600px) {
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      #viewer {
+        height: 70vh;
+      }
+
+      button,
+      input[type="text"] {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <h2>📄 Đọc file .docx có màu &amp; tìm kiếm</h2>
-    <div class="controls">
-        <input id="fileInput" type="file" accept=".docx" />
-        <input id="searchInput" type="text" placeholder="Gõ từ cần tìm (ví dụ: hello)" />
-        <button id="searchBtn">Tìm</button>
-        <button id="prevBtn">‹ Trước</button>
-        <button id="nextBtn">Sau ›</button>
-        <button id="clearBtn">Xóa</button>
-    </div>
-    <div id="status">Chưa tìm kiếm.</div>
-    <div id="viewer" tabindex="0">Chưa có nội dung. Upload file .docx để bắt đầu.</div>
+  <h2>📄 Đọc file .docx có màu &amp; tìm kiếm</h2>
 
-    <!-- ✅ docx-preview -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <div class="controls">
+    <input id="fileInput" type="file" accept=".docx" />
+    <input id="searchInput" type="text" placeholder="Gõ từ cần tìm..." />
+    <button id="searchBtn">🔍 Tìm</button>
+    <button id="prevBtn">⬅ Trước</button>
+    <button id="nextBtn">Tiếp ➡</button>
+    <button id="clearBtn">🧹 Xóa</button>
+  </div>
 
-    <script src="https://unpkg.com/docx-preview@0.3.2/dist/docx-preview.min.js"></script>
+  <div id="status">Chưa tìm kiếm.</div>
+  <div id="viewer" tabindex="0">Chưa có nội dung. Upload file .docx để bắt đầu.</div>
 
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const viewer = document.getElementById('viewer');
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const status = document.getElementById('status');
+  <!-- ✅ Thư viện cần thiết -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://unpkg.com/docx-preview@0.3.2/dist/docx-preview.min.js"></script>
 
-        let currentMarks = [];
-        let currentIndex = -1;
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const viewer = document.getElementById('viewer');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const status = document.getElementById('status');
 
-        // 🟢 Đọc file .docx và hiển thị đầy đủ định dạng, màu sắc
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            viewer.innerHTML = '⏳ Đang đọc file...';
-            viewer.innerHTML = '';
-            try {
-                // ✅ chỉ cần 2 tham số: (file, container)
-                await docx.renderAsync(file, viewer);
-                status.textContent = "✅ File đã tải xong. Bạn có thể tìm kiếm nội dung.";
-            } catch (err) {
-                viewer.innerHTML = '<span style="color:#900">Lỗi khi đọc file: ' + err.message + '</span>';
-                console.error(err);
-            }
-        });
+    let currentMarks = [];
+    let currentIndex = -1;
 
-        // 🟡 Chức năng tìm kiếm và tô sáng
-        function escapeRegExp(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
+    // 🟢 Đọc file .docx có màu
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      viewer.innerHTML = '⏳ Đang tải file...';
+      viewer.innerHTML = '';
+      try {
+        await docx.renderAsync(file, viewer);
+        status.textContent = "✅ File đã hiển thị. Bạn có thể tìm kiếm.";
+      } catch (err) {
+        viewer.innerHTML = `<span style="color:red">❌ Lỗi khi đọc file: ${err.message}</span>`;
+        console.error(err);
+      }
+    });
 
-        function clearHighlights() {
-            currentMarks = [];
-            currentIndex = -1;
-            status.textContent = "Chưa tìm kiếm.";
-            const marks = viewer.querySelectorAll('mark');
-            marks.forEach(m => {
-                const text = document.createTextNode(m.textContent);
-                m.parentNode.replaceChild(text, m);
-            });
-        }
+    // 🟡 Tìm kiếm trong nội dung
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
 
-        function doSearch(term) {
-            clearHighlights();
-            if (!term || !term.trim()) return;
-            term = term.trim();
-            const esc = escapeRegExp(term);
-            const regex = new RegExp('(' + esc + ')', 'gi');
-            const html = viewer.innerHTML;
-            const newHtml = html.replace(regex, '<mark>$1</mark>');
-            viewer.innerHTML = newHtml;
-            currentMarks = Array.from(viewer.querySelectorAll('mark'));
-            if (currentMarks.length > 0) {
-                currentIndex = 0;
-                focusOnCurrent();
-                updateStatus();
-            } else {
-                status.textContent = 'Không tìm thấy: "' + term + '"';
-            }
-        }
+    function clearHighlights() {
+      currentMarks = [];
+      currentIndex = -1;
+      status.textContent = "Chưa tìm kiếm.";
+      const marks = viewer.querySelectorAll('mark');
+      marks.forEach(m => {
+        const text = document.createTextNode(m.textContent);
+        m.parentNode.replaceChild(text, m);
+      });
+    }
 
-        function focusOnCurrent() {
-            if (currentMarks.length === 0) return;
-            currentMarks.forEach(m => m.classList.remove('hit'));
-            const el = currentMarks[currentIndex];
-            el.classList.add('hit');
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            updateStatus();
-        }
+    function doSearch(term) {
+      clearHighlights();
+      if (!term || !term.trim()) return;
+      term = term.trim();
+      const esc = escapeRegExp(term);
+      const regex = new RegExp('(' + esc + ')', 'gi');
+      const html = viewer.innerHTML;
+      const newHtml = html.replace(regex, '<mark>$1</mark>');
+      viewer.innerHTML = newHtml;
+      currentMarks = Array.from(viewer.querySelectorAll('mark'));
+      if (currentMarks.length > 0) {
+        currentIndex = 0;
+        focusOnCurrent();
+        updateStatus();
+      } else {
+        status.textContent = `❌ Không tìm thấy: "${term}"`;
+      }
+    }
 
-        function updateStatus() {
-            if (currentMarks.length === 0) {
-                status.textContent = "Không có kết quả.";
-            } else {
-                status.textContent = `Tìm thấy ${currentMarks.length} kết quả — đang ở ${currentIndex + 1}/${currentMarks.length}`;
-            }
-        }
+    function focusOnCurrent() {
+      if (currentMarks.length === 0) return;
+      currentMarks.forEach(m => m.classList.remove('hit'));
+      const el = currentMarks[currentIndex];
+      el.classList.add('hit');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      updateStatus();
+    }
 
-        searchBtn.addEventListener('click', () => doSearch(searchInput.value));
-        searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(searchInput.value); });
+    function updateStatus() {
+      if (currentMarks.length === 0) {
+        status.textContent = "Không có kết quả.";
+      } else {
+        status.textContent = `🔎 ${currentMarks.length} kết quả — đang ở ${currentIndex + 1}/${currentMarks.length}`;
+      }
+    }
 
-        nextBtn.addEventListener('click', () => {
-            if (currentMarks.length === 0) return;
-            currentIndex = (currentIndex + 1) % currentMarks.length;
-            focusOnCurrent();
-        });
+    searchBtn.addEventListener('click', () => doSearch(searchInput.value));
+    searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(searchInput.value); });
 
-        prevBtn.addEventListener('click', () => {
-            if (currentMarks.length === 0) return;
-            currentIndex = (currentIndex - 1 + currentMarks.length) % currentMarks.length;
-            focusOnCurrent();
-        });
+    nextBtn.addEventListener('click', () => {
+      if (currentMarks.length === 0) return;
+      currentIndex = (currentIndex + 1) % currentMarks.length;
+      focusOnCurrent();
+    });
 
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            clearHighlights();
-        });
+    prevBtn.addEventListener('click', () => {
+      if (currentMarks.length === 0) return;
+      currentIndex = (currentIndex - 1 + currentMarks.length) % currentMarks.length;
+      focusOnCurrent();
+    });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') nextBtn.click();
-            if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') prevBtn.click();
-        });
-    </script>
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearHighlights();
+    });
+
+    // Dùng phím tắt (máy tính)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') nextBtn.click();
+      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') prevBtn.click();
+    });
+  </script>
 </body>
 
 </html>
