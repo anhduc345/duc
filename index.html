@@ -7,6 +7,17 @@
   <title>Đọc .docx có màu & tìm kiếm (PC & Mobile)</title>
 
   <style>
+    /* ✅ Giúp nội dung Word co giãn hợp với màn hình điện thoại */
+    .docx {
+      width: 100% !important;
+      max-width: 100% !important;
+      transform: scale(1) !important;
+      transform-origin: top left !important;
+      overflow-wrap: break-word !important;
+      word-break: break-word !important;
+      white-space: normal !important;
+    }
+
     body {
       font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
       margin: 0 auto;
@@ -138,7 +149,8 @@
       viewer.innerHTML = '⏳ Đang tải file...';
       viewer.innerHTML = '';
       try {
-        await docx.renderAsync(file, viewer);
+        await docx.renderAsync(file, viewer, null, { className: "docx" });
+
         status.textContent = "✅ File đã hiển thị. Bạn có thể tìm kiếm.";
       } catch (err) {
         viewer.innerHTML = `<span style="color:red">❌ Lỗi khi đọc file: ${err.message}</span>`;
